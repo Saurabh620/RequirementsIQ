@@ -113,11 +113,16 @@ with voice_tab:
     st.markdown("**🎤 Click the microphone below, speak your requirements, then click Transcribe:**")
     st.caption("Describe the system, stakeholders, features, and constraints. Works best for 10–120 second recordings.")
 
-    audio_value = st.audio_input(
-        label="Record your requirements",
-        label_visibility="collapsed",
-        key="voice_recorder"
-    )
+    # Safely handle audio_input if available
+    if hasattr(st, 'audio_input'):
+        audio_value = st.audio_input(
+            label="Record your requirements",
+            label_visibility="collapsed",
+            key="voice_recorder"
+        )
+    else:
+        st.warning("⚠️ Audio recording requires Streamlit 1.19.0+. Please update Streamlit.")
+        audio_value = None
 
     if audio_value is not None:
         col_audio, col_ctrl = st.columns([3, 1])
