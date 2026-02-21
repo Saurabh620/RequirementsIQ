@@ -22,6 +22,7 @@ CREATE TABLE IF NOT EXISTS users (
     docs_used_this_month INT        NOT NULL DEFAULT 0,
     docs_limit      INT             NOT NULL DEFAULT 3,
     is_active       TINYINT(1)      NOT NULL DEFAULT 1,
+    is_admin        TINYINT(1)      NOT NULL DEFAULT 0,
     last_login_at   DATETIME        DEFAULT NULL,
     created_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP,
     updated_at      DATETIME        NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
