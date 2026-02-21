@@ -8,7 +8,7 @@ CREATE DATABASE IF NOT EXISTS requirementiq
     CHARACTER SET utf8mb4
     COLLATE utf8mb4_unicode_ci;
 
-USE requirementiq;
+-- USE requirementiq;  -- Commented out: database is specified in connection string
 
 -- ============================================================
 -- TABLE: users
