@@ -101,15 +101,16 @@ def generate_pdf(document_data: dict) -> bytes:
             tdata = [["Name", "Role", "Responsibility"]]
             for s in stakeholders:
                 tdata.append([s.get("name",""), s.get("role",""), s.get("responsibility","")])
-            t = Table(tdata, colWidths=[45*mm, 45*mm, 80*mm])
+            t = Table(tdata, colWidths=[35*mm, 40*mm, 95*mm])
             t.setStyle(TableStyle([
                 ("BACKGROUND", (0,0), (-1,0), ACCENT),
                 ("TEXTCOLOR", (0,0), (-1,0), colors.white),
-                ("FONTSIZE", (0,0), (-1,-1), 9),
+                ("FONTSIZE", (0,0), (-1,-1), 8),
                 ("ROWBACKGROUNDS", (0,1), (-1,-1), [colors.white, colors.HexColor("#f0f0ff")]),
                 ("GRID", (0,0), (-1,-1), 0.5, colors.lightgrey),
-                ("TOPPADDING", (0,0), (-1,-1), 4),
-                ("BOTTOMPADDING", (0,0), (-1,-1), 4),
+                ("TOPPADDING", (0,0), (-1,-1), 3),
+                ("BOTTOMPADDING", (0,0), (-1,-1), 3),
+                ("VALIGN", (0,0), (-1,-1), "TOP"),
             ]))
             story.append(t)
             story.append(Spacer(1, 5*mm))
@@ -121,12 +122,15 @@ def generate_pdf(document_data: dict) -> bytes:
             tdata = [["ID", "Description", "Priority"]]
             for r in reqs:
                 tdata.append([str(r.get("id","")), str(r.get("description","")), str(r.get("priority",""))])
-            t = Table(tdata, colWidths=[20*mm, 120*mm, 30*mm])
+            t = Table(tdata, colWidths=[18*mm, 130*mm, 22*mm])
             t.setStyle(TableStyle([
                 ("BACKGROUND", (0,0), (-1,0), ACCENT),
                 ("TEXTCOLOR", (0,0), (-1,0), colors.white),
                 ("GRID", (0,0), (-1,-1), 0.5, colors.lightgrey),
-                ("FONTSIZE", (0,0), (-1,-1), 9),
+                ("FONTSIZE", (0,0), (-1,-1), 8),
+                ("VALIGN", (0,0), (-1,-1), "TOP"),
+                ("TOPPADDING", (0,0), (-1,-1), 3),
+                ("BOTTOMPADDING", (0,0), (-1,-1), 3),
             ]))
             story.append(t)
             story.append(Spacer(1, 5*mm))
@@ -138,12 +142,15 @@ def generate_pdf(document_data: dict) -> bytes:
             tdata = [["ID", "Description", "Priority"]]
             for r in freqs:
                 tdata.append([str(r.get("id","")), str(r.get("description","")), str(r.get("priority",""))])
-            t = Table(tdata, colWidths=[20*mm, 120*mm, 30*mm])
+            t = Table(tdata, colWidths=[18*mm, 130*mm, 22*mm])
             t.setStyle(TableStyle([
                 ("BACKGROUND", (0,0), (-1,0), ACCENT),
                 ("TEXTCOLOR", (0,0), (-1,0), colors.white),
                 ("GRID", (0,0), (-1,-1), 0.5, colors.lightgrey),
-                ("FONTSIZE", (0,0), (-1,-1), 9),
+                ("FONTSIZE", (0,0), (-1,-1), 8),
+                ("VALIGN", (0,0), (-1,-1), "TOP"),
+                ("TOPPADDING", (0,0), (-1,-1), 3),
+                ("BOTTOMPADDING", (0,0), (-1,-1), 3),
             ]))
             story.append(t)
             story.append(Spacer(1, 5*mm))
@@ -167,13 +174,15 @@ def generate_pdf(document_data: dict) -> bytes:
             tdata = [["ID", "Description", "Impact", "Mitigation"]]
             for r in risks:
                 tdata.append([str(r.get("id","")), str(r.get("description","")), str(r.get("impact","")), str(r.get("mitigation",""))])
-            t = Table(tdata, colWidths=[15*mm, 60*mm, 20*mm, 75*mm])
+            t = Table(tdata, colWidths=[13*mm, 55*mm, 18*mm, 64*mm])
             t.setStyle(TableStyle([
                 ("BACKGROUND", (0,0), (-1,0), ACCENT),
                 ("TEXTCOLOR", (0,0), (-1,0), colors.white),
                 ("GRID", (0,0), (-1,-1), 0.5, colors.lightgrey),
-                ("FONTSIZE", (0,0), (-1,-1), 9),
+                ("FONTSIZE", (0,0), (-1,-1), 8),
                 ("VALIGN", (0,0), (-1,-1), "TOP"),
+                ("TOPPADDING", (0,0), (-1,-1), 3),
+                ("BOTTOMPADDING", (0,0), (-1,-1), 3),
             ]))
             story.append(t)
             story.append(Spacer(1, 5*mm))
@@ -187,12 +196,15 @@ def generate_pdf(document_data: dict) -> bytes:
             tdata = [["Phase", "Description", "Target Date"]]
             for m in tm:
                 tdata.append([str(m.get("phase","")), str(m.get("description","")), str(m.get("target_date",""))])
-            t = Table(tdata, colWidths=[30*mm, 100*mm, 40*mm])
+            t = Table(tdata, colWidths=[25*mm, 110*mm, 35*mm])
             t.setStyle(TableStyle([
                 ("BACKGROUND", (0,0), (-1,0), ACCENT),
                 ("TEXTCOLOR", (0,0), (-1,0), colors.white),
                 ("GRID", (0,0), (-1,-1), 0.5, colors.lightgrey),
-                ("FONTSIZE", (0,0), (-1,-1), 9),
+                ("FONTSIZE", (0,0), (-1,-1), 8),
+                ("VALIGN", (0,0), (-1,-1), "TOP"),
+                ("TOPPADDING", (0,0), (-1,-1), 3),
+                ("BOTTOMPADDING", (0,0), (-1,-1), 3),
             ]))
             story.append(t)
             story.append(Spacer(1, 5*mm))
