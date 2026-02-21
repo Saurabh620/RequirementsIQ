@@ -1,4 +1,4 @@
-FROM python:3.14
+FROM python:3.12
 
 WORKDIR /app
 
@@ -11,3 +11,4 @@ COPY . .
 EXPOSE 8501
 
 CMD ["streamlit", "run", "AI_BA_PM/app.py", "--server.port=8501", "--server.address=0.0.0.0"]
+
