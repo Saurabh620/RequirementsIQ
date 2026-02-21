@@ -9,6 +9,9 @@ streamlit-option-menu==0.3.12
 
 # --- AI / OpenAI ---
 openai==1.14.0
+httpx==0.25.2
+groq==0.10.0
+# mistral: uses OpenAI-compatible endpoint, no separate package needed
 # tiktoken: install via: pip install tiktoken (needs Rust/C compiler on Windows)
 # Fallback token counting is built-in to utils/text_chunker.py
 
