@@ -165,9 +165,21 @@ def init():
     print("  RequirementIQ — Database Initialization")
     print("=" * 55)
     try:
+        ssl_config = None
+        if settings.db_ssl_ca:
+            ssl_config = {
+                'ca': settings.db_ssl_ca,
+                'check_hostname': True
+            }
         conn = pymysql.connect(
-            host=settings.db_host, port=settings.db_port, user=settings.db_user, password=settings.db_password,
-            db=settings.db_name, charset="utf8mb4", autocommit=True
+            host=settings.db_host, 
+            port=settings.db_port, 
+            user=settings.db_user, 
+            password=settings.db_password,
+            db=settings.db_name, 
+            charset="utf8mb4", 
+            autocommit=True,
+            ssl=ssl_config
         )
         cursor = conn.cursor()
         print(f"✅ Connected to MySQL ({settings.db_host}:{settings.db_port})\n")

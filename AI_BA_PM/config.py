@@ -26,6 +26,7 @@ class Settings(BaseSettings):
     db_name: str = Field(default="requirementiq", alias="DB_DATABASE")
     db_user: str = Field(default="root", alias="DB_USERNAME")
     db_password: str = Field(default="", alias="DB_PASSWORD")
+    db_ssl_ca: str = Field(default="", alias="DB_SSL_CA")
     db_pool_size: int = 5
     db_pool_recycle: int = 3600
 
@@ -58,11 +59,14 @@ class Settings(BaseSettings):
 
     @property
     def db_url(self) -> str:
-        return (
+        url = (
             f"mysql+pymysql://{self.db_user}:{self.db_password}"
             f"@{self.db_host}:{self.db_port}/{self.db_name}"
             f"?charset=utf8mb4"
         )
+        if self.db_ssl_ca:
+            url += f"&ssl_ca={self.db_ssl_ca}&ssl_verify_cert=true&ssl_verify_identity=true"
+        return url
 
     @property
     def is_production(self) -> bool:
