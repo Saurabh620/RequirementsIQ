@@ -166,7 +166,12 @@ def init():
     print("=" * 55)
     try:
         ssl_config = None
-        if settings.db_ssl_ca:
+        if "tidbcloud.com" in settings.db_host:
+            # For TiDB Cloud, use SSL without CA file (uses system CA certificates)
+            ssl_config = {
+                'check_hostname': True
+            }
+        elif settings.db_ssl_ca:
             ssl_config = {
                 'ca': settings.db_ssl_ca,
                 'check_hostname': True

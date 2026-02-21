@@ -64,7 +64,10 @@ class Settings(BaseSettings):
             f"@{self.db_host}:{self.db_port}/{self.db_name}"
             f"?charset=utf8mb4"
         )
-        if self.db_ssl_ca:
+        # For TiDB Cloud, always enable SSL
+        if "tidbcloud.com" in self.db_host:
+            url += "&ssl_verify_cert=true&ssl_verify_identity=true"
+        elif self.db_ssl_ca:
             url += f"&ssl_ca={self.db_ssl_ca}&ssl_verify_cert=true&ssl_verify_identity=true"
         return url
 
