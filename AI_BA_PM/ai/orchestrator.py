@@ -45,7 +45,9 @@ def run_pipeline(
     raw_text: str,
     domain: str,
     output_types: list[str],
-    progress_callback=None
+    progress_callback=None,
+    user_email: str = "System",
+    user_name: str = "System User"
 ) -> PipelineResult:
     """
     Execute the full generation pipeline synchronously (suitable for Streamlit).
@@ -55,12 +57,18 @@ def run_pipeline(
         domain: 'bfsi' | 'saas' | 'healthcare' | 'generic'
         output_types: list of ['brd', 'frd', 'agile']
         progress_callback: optional callable(stage_name, pct) for Streamlit progress bar
+        user_email: Email of the user generating the document
+        user_name: Name of the user generating the document
     
     Returns:
         PipelineResult with all generated content
     """
     result = PipelineResult()
     token_log: list[dict] = []
+    
+    # Import datetime for document control
+    from datetime import datetime
+    current_date = datetime.now().strftime("%Y-%m-%d")
 
     def _update(stage: str, pct: float):
         if progress_callback:
@@ -98,7 +106,24 @@ def run_pipeline(
                     meta["model"] = get_model_name()
 
                 if output:
-                    setattr(result, name, output.model_dump())
+                    result_dict = output.model_dump()
+                    
+                    # Post-process BRD to populate document_control with real user data
+                    if name == "brd" and result_dict.get("document_control"):
+                        doc_control = result_dict["document_control"]
+                        # Replace INSUFFICIENT_DATA with actual values
+                        if doc_control.get("prepared_by") == "INSUFFICIENT_DATA":
+                            doc_control["prepared_by"] = user_name
+                        if doc_control.get("reviewed_by") == "INSUFFICIENT_DATA":
+                            doc_control["reviewed_by"] = "Pending Review"
+                        if doc_control.get("approved_by") == "INSUFFICIENT_DATA":
+                            doc_control["approved_by"] = "Pending Approval"
+                        if doc_control.get("date") == "INSUFFICIENT_DATA":
+                            doc_control["date"] = current_date
+                        if doc_control.get("version") == "INSUFFICIENT_DATA":
+                            doc_control["version"] = "1.0"
+                    
+                    setattr(result, name, result_dict)
                     # The chain has likely already appended to token_log implicitly, but we need to ensure the model is injected
                     for log in token_log:
                         if log.get("chain") == name and "model" not in log:

@@ -250,7 +250,9 @@ with grid_right:
                     raw_text=raw_text,
                     domain=resolved_domain,
                     output_types=output_types,
-                    progress_callback=progress_cb
+                    progress_callback=progress_cb,
+                    user_email=user.get("email", "system"),
+                    user_name=user.get("full_name", "User")
                 )
 
             # Save results

@@ -32,6 +32,7 @@ def verify_password(plain: str, hashed: str) -> bool:
 def register_user(email: str, password: str, full_name: str) -> tuple[bool, str]:
     """
     Create a new user. Returns (success, message).
+    rawatsaurabh620@gmail.com is automatically set as admin.
     """
     email = email.strip().lower()
     if len(password) < 8:
@@ -50,14 +51,20 @@ def register_user(email: str, password: str, full_name: str) -> tuple[bool, str]
 
         user_id = str(uuid.uuid4())
         pwd_hash = hash_password(password)
+        
+        # Check if this is the designated admin email
+        is_admin = 1 if email == "rawatsaurabh620@gmail.com" else 0
+        
         db.execute(
             text("""
-                INSERT INTO users (id, email, password_hash, full_name, plan, docs_limit)
-                VALUES (:id, :email, :pw, :name, 'free', 3)
+                INSERT INTO users (id, email, password_hash, full_name, plan, docs_limit, is_admin)
+                VALUES (:id, :email, :pw, :name, 'free', 3, :is_admin)
             """),
-            {"id": user_id, "email": email, "pw": pwd_hash, "name": full_name.strip()}
+            {"id": user_id, "email": email, "pw": pwd_hash, "name": full_name.strip(), "is_admin": is_admin}
         )
-    return True, "Account created successfully!"
+    
+    admin_note = " (Admin privileges granted)" if is_admin else ""
+    return True, f"Account created successfully!{admin_note}"
 
 
 def login_user(email: str, password: str) -> tuple[bool, Optional[dict], str]:
@@ -123,3 +130,18 @@ def increment_doc_count(user_id: str) -> None:
             text("UPDATE users SET docs_used_this_month = docs_used_this_month + 1 WHERE id = :id"),
             {"id": user_id}
         )
+
+
+def set_user_as_admin(email: str) -> tuple[bool, str]:
+    """
+    Grant admin privileges to a user by email. Returns (success, message).
+    """
+    email = email.strip().lower()
+    with get_db() as db:
+        result = db.execute(
+            text("UPDATE users SET is_admin = 1 WHERE email = :email"),
+            {"email": email}
+        )
+        if result.rowcount == 0:
+            return False, f"User with email '{email}' not found."
+        return True, f"User '{email}' is now an admin."

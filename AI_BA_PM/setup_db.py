@@ -212,6 +212,17 @@ def init():
                 )
             print(f"\n  ✅ Seeded {len(SEED_DATA)} industry templates")
 
+        # Set admin user if not already set
+        ADMIN_EMAIL = "rawatsaurabh620@gmail.com"
+        cursor.execute("SELECT is_admin FROM users WHERE email = %s AND is_admin = 1", (ADMIN_EMAIL,))
+        admin_exists = cursor.fetchone()
+        if not admin_exists:
+            cursor.execute("UPDATE users SET is_admin = 1 WHERE email = %s", (ADMIN_EMAIL,))
+            if cursor.rowcount > 0:
+                print(f"\n  ✅ Set {ADMIN_EMAIL} as admin")
+            elif cursor.rowcount == 0:
+                print(f"\n  ℹ️  Admin user {ADMIN_EMAIL} not yet registered (will be set when registered)")
+
         # Verify
         cursor.execute("SHOW TABLES")
         tables = [r[0] for r in cursor.fetchall()]
