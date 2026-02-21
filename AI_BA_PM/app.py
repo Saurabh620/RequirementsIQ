@@ -104,7 +104,7 @@ if st.session_state.user:
 else:
     if not db_ok:
         st.error("⚠️ Cannot connect to the database. Please check your MySQL configuration in `.env`.")
-        st.code("DB_HOST=localhost\\nDB_USER=riq_user\\nDB_PASSWORD=...\\nDB_NAME=requirementiq")
+        st.code("DB_HOST=gateway01.ap-southeast-1.prod.aws.tidbcloud.com\\nDB_PORT=4000\\nDB_USERNAME=3gCjNw8RmRfzPzk.root\\nDB_PASSWORD=...\\nDB_DATABASE=test")
         st.stop()
 
     # Hero / Landing Layout

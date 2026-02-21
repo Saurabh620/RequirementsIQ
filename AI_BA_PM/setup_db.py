@@ -4,6 +4,7 @@ Runs all CREATE TABLE statements directly against XAMPP MySQL.
 """
 import pymysql
 import sys
+from config import settings
 
 
 DDL_STATEMENTS = [
@@ -165,11 +166,11 @@ def init():
     print("=" * 55)
     try:
         conn = pymysql.connect(
-            host="localhost", port=3306, user="root", password="",
-            db="requirementiq", charset="utf8mb4", autocommit=True
+            host=settings.db_host, port=settings.db_port, user=settings.db_user, password=settings.db_password,
+            db=settings.db_name, charset="utf8mb4", autocommit=True
         )
         cursor = conn.cursor()
-        print("✅ Connected to XAMPP MySQL (localhost:3306)\n")
+        print(f"✅ Connected to MySQL ({settings.db_host}:{settings.db_port})\n")
 
         # Create tables
         for stmt in DDL_STATEMENTS:

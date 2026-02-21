@@ -3,6 +3,7 @@ RequirementIQ — Central Configuration
 Loads all settings from environment variables via pydantic-settings.
 """
 from functools import lru_cache
+from pydantic import Field
 from pydantic_settings import BaseSettings, SettingsConfigDict
 
 
@@ -20,11 +21,11 @@ class Settings(BaseSettings):
     app_secret_key: str = "change-me"
 
     # MySQL
-    db_host: str = "localhost"
-    db_port: int = 3306
-    db_name: str = "requirementiq"
-    db_user: str = "root"
-    db_password: str = ""
+    db_host: str = Field(default="localhost", alias="DB_HOST")
+    db_port: int = Field(default=3306, alias="DB_PORT")
+    db_name: str = Field(default="requirementiq", alias="DB_DATABASE")
+    db_user: str = Field(default="root", alias="DB_USERNAME")
+    db_password: str = Field(default="", alias="DB_PASSWORD")
     db_pool_size: int = 5
     db_pool_recycle: int = 3600
 
