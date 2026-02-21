@@ -1,0 +1,661 @@
+# 🧠 ANTIGRAVITY INTERNAL PRODUCT BUILD DOCUMENT
+## AI BRD/FRD Generator — Production-Grade SaaS Blueprint
+**Version:** 1.0 | **Date:** February 2026 | **Classification:** Internal — Execution Grade
+
+---
+
+## 1. REFINED PRODUCT POSITIONING STATEMENT
+
+> **"RequirementIQ is the AI co-pilot for Business Analysts and Product Managers — transforming raw stakeholder discussions into structured, audit-ready BRDs, FRDs, and Agile artifacts in under 60 seconds. No more blank-page syndrome. No more missed requirements."**
+
+**Positioning Pillars:**
+| Pillar | Statement |
+|---|---|
+| **For whom** | BAs, PMs, Functional Consultants, Implementation Leads |
+| **Problem solved** | 30–50% time lost in manual documentation |
+| **How** | AI-powered structured requirement intelligence |
+| **Differentiator** | Domain-aware (BFSI, SaaS, Healthcare) gap + risk engine — not just formatting |
+| **Outcome metric** | From transcript to professional document in < 60 seconds |
+
+---
+
+## 2. CATEGORY DEFINITION — WHAT NEW CATEGORY THIS CREATES
+
+**Category Name: "Requirement Intelligence Automation (RIA)"**
+
+This is distinct from existing categories:
+
+| Existing Category | What it does | RIA difference |
+|---|---|---|
+| Note-taking AI (Notion AI, Mem) | Summarizes notes | Does not produce structured specs |
+| Documentation tools (Confluence) | Stores documents | Requires manual content creation |
+| Project management (Jira, Linear) | Tracks tickets | Does not generate requirements from raw input |
+| Proposal generators (Qwilr, PandaDoc) | Sales docs | Wrong workflow, wrong persona |
+| Generic AI writers (ChatGPT, Jasper) | Free-form text | No BA domain knowledge, no gap/risk logic |
+
+**RIA fills the gap:** Intelligence layer between raw conversation → structured enterprise-grade documentation with domain-aware gap detection and risk analysis. First mover advantage is real here.
+
+---
+
+## 3. COMPETITIVE MOAT STRATEGY
+
+### Primary Moats (Build in order)
+
+```
+Moat 1: Domain Intelligence (Weeks 1–8)
+  └── BFSI, SaaS, Healthcare specific prompt chains
+  └── Pre-built requirement pattern libraries
+  └── Industry-specific risk taxonomies
+
+Moat 2: Proprietary Gap Detection Engine (Weeks 4–12)
+  └── Fine-tuned classifier for missing requirement types
+  └── Scoring model for document completeness
+  └── Historical "pattern-of-gaps" per domain
+
+Moat 3: Feedback Loop Data (Months 2–6)
+  └── Users editing outputs = labeled training data
+  └── "Was this helpful?" inline signals
+  └── Export rate, edit rate as quality signals
+
+Moat 4: Template Ecosystem & Community (Months 4–12)
+  └── Industry-specific BRD/FRD template marketplace
+  └── User-contributed patterns (with curation)
+  └── Consultant/agency partner network
+```
+
+### Defensive Strategy
+- **Lock-in via versioning:** Document history creates switching cost
+- **Team collaboration:** Shared workspaces make individual churn costly
+- **Integration play:** Jira/Confluence/Azure DevOps plugins trap users in workflow
+- **Export quality differentiation:** Professional branding, watermarks on free tier
+
+---
+
+## 4. DETAILED MVP FEATURE BREAKDOWN
+
+> **MVP North Star:** A solo BA/PM can upload a meeting transcript and receive a usable, exportable BRD + FRD in 60 seconds.
+
+### MVP Feature Map (MoSCoW)
+
+| Feature | Priority | Notes |
+|---|---|---|
+| User auth (email + Google OAuth) | Must | Clerk.dev or Supabase Auth |
+| File upload: `.txt`, `.docx`, paste | Must | Max 50KB for MVP |
+| BRD generation | Must | Full structure per spec |
+| FRD generation | Must | Full structure per spec |
+| User Stories + Acceptance Criteria | Must | Gherkin format |
+| PDF export | Must | Puppeteer / PDFKit |
+| DOCX export | Must | docxtemplater |
+| Gap Analysis (7 detections) | Must | Rule + AI hybrid |
+| Risk Engine (6 risk types) | Must | Template-driven AI |
+| Document history (last 10 per user) | Should | PostgreSQL, no versioning yet |
+| Free tier limits (3 docs/month) | Must | JWT claim-based gating |
+| Pro tier unlock | Must | Stripe integration |
+| Domain selection (BFSI/SaaS/Healthcare) | Should | Context injection in prompt |
+| Use Cases generation | Should | After core BRD/FRD stable |
+| AI Story Point Suggestion | Could | Fibonacci scale, low confidence |
+| Team workspaces | Won't (MVP) | Post-MVP |
+| Real-time collaboration | Won't (MVP) | Post-MVP |
+| Jira integration | Won't (MVP) | v1.1 |
+
+### MVP User Flows (Critical Paths)
+
+```
+Flow 1: New User → Generate → Export
+  Sign Up → Dashboard → Upload/Paste → Select Domain →
+  Generate → Review Output → Export PDF/DOCX → Done
+
+Flow 2: Returning User → History → Re-export
+  Login → Dashboard → Document History → Re-export → Done
+
+Flow 3: Upgrade Prompt
+  Hit limit (3 docs) → Upgrade Modal → Stripe Checkout →
+  Pro activated → Continue generating
+```
+
+---
+
+## 5. SYSTEM ARCHITECTURE
+
+```mermaid
+graph TB
+    subgraph CLIENT["🖥️ Client Layer"]
+        WEB["React SPA\n(Vite + TypeScript)"]
+    end
+
+    subgraph API["⚙️ API Layer"]
+        GW["API Gateway\n(Rate Limiting, Auth)"]
+        AUTH["Auth Service\n(Clerk / Supabase)"]
+        CORE["Core Generation Service\n(FastAPI / Node.js)"]
+        EXPORT["Export Service\n(PDF + DOCX)"]
+        QUEUE["Job Queue\n(BullMQ / Redis)"]
+    end
+
+    subgraph AI["🧠 AI Orchestration Layer"]
+        ORCH["Prompt Orchestrator"]
+        BRD_P["BRD Prompt Chain"]
+        FRD_P["FRD Prompt Chain"]
+        AGILE_P["Agile Artifact Chain"]
+        GAP_P["Gap Detection Chain"]
+        RISK_P["Risk Engine Chain"]
+        OPENAI["OpenAI API\n(GPT-4o)"]
+    end
+
+    subgraph DATA["🗄️ Data Layer"]
+        PG[("PostgreSQL\n(Users, Docs, Jobs)")]
+        S3["S3-Compatible Storage\n(Uploads + Exports)"]
+        REDIS[("Redis\n(Queue + Cache)")]
+    end
+
+    WEB --> GW
+    GW --> AUTH
+    GW --> CORE
+    CORE --> QUEUE
+    QUEUE --> ORCH
+    ORCH --> BRD_P & FRD_P & AGILE_P
+    ORCH --> GAP_P & RISK_P
+    BRD_P & FRD_P & AGILE_P & GAP_P & RISK_P --> OPENAI
+    ORCH --> EXPORT
+    CORE --> PG
+    CORE --> S3
+    QUEUE --> REDIS
+```
+
+### Component Responsibilities
+
+| Component | Tech | Responsibility |
+|---|---|---|
+| React SPA | Vite + TypeScript + TailwindCSS | UI, file upload, results rendering, export trigger |
+| API Gateway | NGINX / AWS API Gateway | Auth validation, rate limiting, routing |
+| Core Service | FastAPI (Python) | File parsing, job orchestration, response shaping |
+| Job Queue | BullMQ + Redis | Async AI job management, retry logic |
+| Prompt Orchestrator | Python module | Chain routing, domain context injection, response parsing |
+| Export Service | Puppeteer (PDF) + docxtemplater | Professional document rendering |
+| PostgreSQL | Supabase / RDS | Users, documents, generation history, billing state |
+| S3 Storage | Cloudflare R2 / AWS S3 | Raw uploads, generated DOCX/PDF, secure pre-signed URLs |
+
+---
+
+## 6. AI ORCHESTRATION STRATEGY
+
+### Orchestration Philosophy
+**Not one giant prompt. A chain of specialized sub-agents.**
+
+Each document section is owned by a distinct prompt unit. Results are assembled by the Orchestrator, validated, then passed to the next stage. This enables:
+- Independent testing per chain
+- Faster iteration on weaker areas
+- Token cost control (only run relevant chains)
+- Parallel generation where dependency allows
+
+### Orchestration Sequence
+
+```
+Stage 1: Input Processing (synchronous, <1s)
+  → Extract text from .txt / .docx / paste
+  → Chunk normalize to 6000-token windows
+  → Detect domain via keyword classifier (no LLM call)
+
+Stage 2: Context Build (synchronous, <1s)
+  → Load domain template (BFSI / SaaS / Healthcare / Generic)
+  → Build system context blob
+  → Prepare shared context object passed to all chains
+
+Stage 3: Parallel Generation (async, 8–18s)
+  → BRD Chain (Parallel)
+  → FRD Chain (Parallel)
+  → Agile Artifacts Chain (Parallel)
+
+Stage 4: Intelligence Layer (sequential after Stage 3, 3–6s)
+  → Gap Detection Chain (input: raw text + Stage 3 output)
+  → Risk Engine Chain (input: raw text + domain + Stage 3 output)
+
+Stage 5: Assemble + Validate (synchronous, <1s)
+  → Merge all chain outputs into unified document model
+  → Apply completeness score
+  → Flag low-confidence sections for user review
+
+Stage 6: Export Render (on-demand)
+  → PDF via Puppeteer template
+  → DOCX via docxtemplater
+```
+
+### Parallel vs Sequential Decision
+
+```
+Can run in parallel:    BRD + FRD + Agile chains (no cross-dependency)
+Must run sequential:    Gap + Risk chains (need generated doc as input)
+On-demand only:         Export chains (triggered by user action)
+```
+
+---
+
+## 7. PROMPT ENGINEERING FRAMEWORK
+
+### Design Principles
+1. **System Prompt = Persona + Domain Context + Output Schema**
+2. **User Prompt = Input document + Task instruction**
+3. **Output = Strict JSON schema** (never free-form text from AI)
+4. **Temperature = 0.3** (structured accuracy over creativity)
+5. **Validation = Zod/Pydantic schema enforcement** after every response
+
+### Prompt Architecture per Chain
+
+#### BRD Chain — Prompt Structure
+```
+[SYSTEM]
+You are a senior Business Analyst with 15 years of experience in {domain}.
+Your task is to analyze the provided stakeholder input and generate a
+complete Business Requirements Document.
+
+Output ONLY valid JSON matching this schema:
+{brd_json_schema}
+
+Rules:
+- If a section cannot be determined, output "INSUFFICIENT_DATA" as value
+- Never invent stakeholder names or technical metrics
+- Flag low-confidence fields with "confidence": "low"
+
+Domain context: {domain_specific_context}
+
+[USER]
+Analyze the following stakeholder input:
+---
+{processed_input}
+---
+Generate the BRD JSON.
+```
+
+#### Gap Detection Chain — Prompt Structure
+```
+[SYSTEM]
+You are a requirements completeness auditor.
+Given a generated BRD/FRD and the original source input, identify gaps.
+
+Check for these specific gap categories:
+1. Missing stakeholders
+2. Undefined scope boundaries
+3. Missing performance criteria
+4. Missing security requirements
+5. Missing edge cases
+6. Missing admin roles
+7. Missing data retention policy
+
+Output ONLY valid JSON: { "gaps": [{ "type": string, "severity": "HIGH|MED|LOW", "description": string, "recommendation": string }] }
+
+[USER]
+Original input: {raw_input_summary}
+Generated document: {generated_doc_summary}
+Identify all gaps.
+```
+
+#### Risk Engine Chain — Prompt Structure
+```
+[SYSTEM]
+You are a technical risk assessor for software projects in {domain}.
+Generate a structured risk register based on the requirements.
+
+Risk categories to evaluate:
+- Technical | Dependency | Compliance | Data Privacy | Integration | Timeline
+
+For each risk: { "category", "title", "description", "probability": "H|M|L", "impact": "H|M|L", "mitigation_strategy" }
+
+[USER]
+Project requirements context: {requirements_summary}
+Domain: {domain}
+Generate risk register JSON.
+```
+
+### Prompt Versioning
+- All prompts stored in `/prompts/` directory as `.yaml` files
+- Version-tagged: `brd_v1.2.yaml`
+- A/B tested via feature flags
+- Prompt performance tracked: generation quality score per version
+
+### Token Budget Management
+| Chain | Max Input Tokens | Max Output Tokens | Est. Cost/call |
+|---|---|---|---|
+| BRD Chain | 4,000 | 3,000 | ~$0.05 (GPT-4o) |
+| FRD Chain | 4,000 | 3,000 | ~$0.05 |
+| Agile Chain | 3,000 | 3,000 | ~$0.04 |
+| Gap Chain | 6,000 | 1,500 | ~$0.06 |
+| Risk Chain | 4,000 | 1,500 | ~$0.04 |
+| **Total/generation** | | | **~$0.24** |
+
+> **With caching + prompt optimization, target ≤ $0.15/generation by month 2.**
+
+---
+
+## 8. RISK MITIGATION STRATEGY
+
+### Technical Risks
+
+| Risk | Probability | Impact | Mitigation |
+|---|---|---|---|
+| OpenAI API latency spikes (>30s) | Medium | High | BullMQ async queue + user-facing progress bar; timeout at 45s with graceful error |
+| AI output schema validation failure | High (early) | Medium | Zod/Pydantic validation on every response; retry once with stricter prompt; fallback to partial output |
+| Hallucinated stakeholder/technical data | Medium | High | Prompt instructs "INSUFFICIENT_DATA" over invention; human review callouts in UI |
+| File parsing failure (.docx edge cases) | Low | Medium | mammoth.js with fallback to raw text extraction; clear error messaging |
+| Cold start latency on serverless | Medium | Low | Warm instance pool; queue pre-warming during business hours |
+
+### Business Risks
+
+| Risk | Probability | Impact | Mitigation |
+|---|---|---|---|
+| OpenAI price increase | Medium | High | Abstract AI layer; ready to switch to Claude/Gemini; test alternatives in parallel |
+| Low free-to-paid conversion | Medium | High | Friction-free free tier; export quality as upgrade hook; in-app upgrade nudges |
+| Enterprise security objections | High | High | Data deletion on processing completion; SOC2 roadmap; on-premise option in roadmap |
+| Generic AI assistants catching up | High | Medium | Double down on domain intelligence + BA-specific UX; integrations as moat |
+
+### Data / Compliance Risks
+- **No PII storage** of uploaded documents beyond processing window
+- **Input sanitization** before storage or AI submission
+- **Encryption at rest** (AES-256) + **in transit** (TLS 1.3)
+- **GDPR flow:** Right to deletion implemented from day 1
+- **SOC2 Type I** target at month 6, Type II at month 12
+
+---
+
+## 9. SCALABLE ARCHITECTURE PLAN
+
+### Phase 1: MVP (0–3 months) — Low Cost, High Speed
+```
+Hosting:      Vercel (Frontend) + Railway/Render (Backend)
+Database:     Supabase (PostgreSQL + Auth)
+Storage:      Cloudflare R2
+Queue:        BullMQ on Railway Redis
+AI:           OpenAI API (direct)
+Monitoring:   Sentry + Uptime Robot
+Cost/month:   ~$80–150
+```
+
+### Phase 2: Scale (3–9 months) — 1,000+ Users
+```
+Hosting:      AWS ECS (containerized FastAPI) / Fargate
+Database:     RDS PostgreSQL (Multi-AZ)
+Storage:      AWS S3 with CloudFront CDN
+Queue:        AWS SQS + Lambda workers
+Cache:        ElastiCache Redis
+AI:           OpenAI + fallback to Azure OpenAI
+Monitoring:   DataDog + PagerDuty
+Cost/month:   ~$600–1,200
+```
+
+### Phase 3: Enterprise (9–18 months)
+```
+Add:          VPC per tenant (enterprise isolation)
+Add:          On-premise deployment option (Docker Compose)
+Add:          Fine-tuned model endpoint (domain-specific)
+Add:          Audit logging, SSO (SAML/OIDC)
+Cost/month:   $2,000–5,000 (offset by enterprise ARR)
+```
+
+### Scaling Bottlenecks & Solutions
+| Bottleneck | Threshold | Solution |
+|---|---|---|
+| AI chain latency | >50 concurrent users | Horizontal queue worker scaling |
+| DB connection pool | >200 concurrent | PgBouncer connection pooling |
+| File upload throughput | >100 uploads/hour | Direct S3 pre-signed URL upload (bypass backend) |
+| Export rendering | >30 concurrent exports | Export worker pool, async delivery via email/webhook |
+
+---
+
+## 10. UX STRUCTURE RECOMMENDATION
+
+### Design Philosophy: **"Zero Friction, Maximum Trust"**
+- User should feel like an expert from the first generation
+- AI output must *look* professional before user even edits it
+- System should guide, not overwhelm
+
+### Screen Architecture
+
+```
+/login              → Email + Google OAuth
+/dashboard          → Recent docs, usage meter, quick-create CTA
+/generate           → Core workflow (upload → configure → generate)
+/document/:id       → Output viewer + inline editor + export panel
+/history            → All documents, filterable by date/type
+/settings           → Profile, billing, API key (Pro)
+/upgrade            → Pricing page (embedded, not full-page redirect)
+```
+
+### /generate — Core UX Flow (3 Steps, not 7)
+
+```
+Step 1: INPUT
+  ┌─────────────────────────────────────┐
+  │  📎 Drop file  |  📋 Paste text    │
+  │  Domain: [BFSI ▼]  [SaaS] [Health]│
+  │  Output: [BRD ✓] [FRD ✓] [Agile ✓]│
+  │                    [Generate →]     │
+  └─────────────────────────────────────┘
+
+Step 2: GENERATION (live progress)
+  ┌─────────────────────────────────────┐
+  │  ⚡ Analyzing input...              │
+  │  📄 Building BRD...      [████░░]  │
+  │  📋 Building FRD...      [██░░░░]  │
+  │  🔍 Running gap analysis...[░░░░░] │
+  └─────────────────────────────────────┘
+
+Step 3: OUTPUT & REVIEW
+  ┌───────────────┬─────────────────────┐
+  │  📄 BRD       │  [Full document]    │
+  │  📋 FRD       │  Section navigator  │
+  │  🎯 Agile     │  Inline edit        │
+  │  ─────────    │  ──────────────     │
+  │  ⚠️ Gaps (3)  │  Gap list with fix  │
+  │  🚨 Risks (5) │  Risk register      │
+  │  ─────────    │  ──────────────     │
+  │  📥 Export    │  [PDF] [DOCX]       │
+  └───────────────┴─────────────────────┘
+```
+
+### UX Trust Signals
+- **Confidence indicators** on each section (`High / Medium / Low`)
+- **"AI Note" callouts** for sections needing human review
+- **Edit mode** always available — users must feel in control
+- **Word count + section count** as quality signal
+- **Gap severity badges** (🔴 HIGH, 🟡 MEDIUM, 🟢 LOW)
+
+---
+
+## 11. 6-WEEK MVP BUILD ROADMAP
+
+### Team Assumption: 2 developers (1 FE, 1 BE/AI) + 1 PM/founder
+
+```mermaid
+gantt
+    title RequirementIQ MVP — 6-Week Build Roadmap
+    dateFormat  YYYY-MM-DD
+    section Foundation
+    Project setup, auth, DB schema         :a1, 2026-02-23, 4d
+    File upload + S3 + parsing pipeline    :a2, after a1, 3d
+    section AI Core
+    Prompt chain v1 (BRD + FRD)            :b1, 2026-02-27, 5d
+    Agile artifact chain                   :b2, after b1, 3d
+    Gap detection + risk engine            :b3, after b2, 3d
+    section Backend
+    Job queue + async generation API       :c1, 2026-02-27, 5d
+    Export service (PDF + DOCX)            :c2, after c1, 4d
+    Billing integration (Stripe)           :c3, after c2, 3d
+    section Frontend
+    Design system + core layouts           :d1, 2026-02-27, 4d
+    Generate flow (upload → output)        :d2, after d1, 5d
+    Document viewer + export UI            :d3, after d2, 4d
+    section Hardening
+    Testing + bug fixes                    :e1, 2026-03-30, 3d
+    Security review + rate limiting        :e2, after e1, 2d
+    Beta launch prep                       :e3, after e2, 2d
+```
+
+### Week-by-Week Breakdown
+
+| Week | Focus | Milestone |
+|---|---|---|
+| **Week 1** | Foundation: Auth, DB, file upload, project scaffolding | User can sign up, upload file, file stored in S3 |
+| **Week 2** | AI Core: BRD + FRD prompt chains, async queue | Raw BRD + FRD JSON returned from AI |
+| **Week 3** | AI Core: Agile chain + Gap + Risk engines | Full generation pipeline functional end-to-end |
+| **Week 4** | FE: Core UI (upload → generate → output viewer) | Full user journey visible in browser |
+| **Week 5** | Export + Billing + Document history | PDF/DOCX download works; Stripe payments live |
+| **Week 6** | Hardening: Testing, rate limiting, error states, beta launch | 10 beta users generating real documents |
+
+---
+
+## 12. COST ESTIMATION
+
+### Infrastructure (Phase 1 — MVP)
+
+| Component | Service | Monthly Cost |
+|---|---|---|
+| Frontend hosting | Vercel Pro | $20 |
+| Backend hosting | Railway (2 services) | $30 |
+| Database | Supabase Pro | $25 |
+| File storage | Cloudflare R2 (50GB) | $5 |
+| Redis (queue) | Railway Redis | $10 |
+| Error monitoring | Sentry Team | $26 |
+| Email (transactional) | Resend | $0–20 |
+| DNS + SSL | Cloudflare | $0 |
+| **Subtotal (infra)** | | **~$116–136/mo** |
+
+### AI Cost Projection
+
+| User Volume | Docs/month | AI cost/doc | Monthly AI cost |
+|---|---|---|---|
+| 100 users (MVP launch) | ~300 | $0.24 | ~$72 |
+| 500 users (month 2) | ~2,000 | $0.20 (cached) | ~$400 |
+| 2,000 users (month 4) | ~10,000 | $0.15 (optimized) | ~$1,500 |
+
+### Revenue vs Cost Break-even
+
+| Metric | Value |
+|---|---|
+| Pro tier price | $29/month |
+| Break-even (infra only) | 5 paying users |
+| Break-even (infra + AI at 500 users) | ~19 paying users |
+| Target gross margin (at scale) | 70%+ |
+
+> **Capital efficient from day 30 with 20 Pro subscribers.**
+
+---
+
+## 13. GO-TO-MARKET STRATEGY
+
+### Phase 1: Seeding (Weeks 1–6, pre-launch)
+- **10 beta users** from personal network (BA/PM community)
+- Collect feedback via Loom screen recordings + async Google Forms
+- Iterate on prompt quality based on real BA transcripts
+- Build in public: LinkedIn + Twitter/X posts about the build journey
+
+### Phase 2: Community-Led Launch (Months 2–3)
+| Channel | Tactic | Goal |
+|---|---|---|
+| **ProductHunt** | Launch with demo video + founder story | 500 upvotes, 200 signups |
+| **Reddit** | r/businessanalysis, r/ProductManagement, r/agile | 50–100 organic signups |
+| **LinkedIn** | BA/PM audience, "here's what AI can do for your documentation" | 1,000 impressions/post |
+| **YouTube** | "I analyzed a stakeholder meeting with AI" demo | Evergreen SEO traffic |
+| **BA forums** | IIBA forums, local BA meetup groups | Community credibility |
+
+### Phase 3: Content + SEO (Months 3–6)
+- **Target keywords:** "BRD template AI", "FRD generator", "user story generator AI", "requirements document tool"
+- **Blog content:** "10 requirements every BA misses", "BRD vs FRD explained", "Gap analysis checklist"
+- **Free tools as lead magnets:** "Free BRD template download" → capture email → nurture to product
+
+### Phase 4: Partner + Integration (Months 6–12)
+- **Consulting partner program:** Agencies get white-label or referral revenue
+- **Jira plugin:** App marketplace listing for inbound enterprise discovery
+- **IIBA (Institute of BA) sponsorship:** Credibility signal for enterprise buyers
+
+---
+
+## 14. IDEAL CUSTOMER PROFILE (ICP)
+
+### Primary ICP — Solo BA / PM
+
+| Attribute | Profile |
+|---|---|
+| **Title** | Business Analyst, Product Manager, Functional Consultant |
+| **Experience** | 0–7 years (still building documentation skills) |
+| **Company size** | 10–500 employees |
+| **Industry** | SaaS, BFSI, Healthcare IT, consulting firms |
+| **Pain frequency** | Documents 5–15 requirements per month |
+| **Tech comfort** | Comfortable with SaaS tools (Notion, Jira, Google Workspace) |
+| **Budget authority** | Can expense $29/month without approval |
+| **Discovery channel** | LinkedIn, ProductHunt, BA communities, Google |
+
+### Secondary ICP — Consulting Firm / Agency
+
+| Attribute | Profile |
+|---|---|
+| **Title** | Practice Lead, Delivery Manager |
+| **Company size** | 5–50 consultants |
+| **Use case** | Standardize client deliverable quality across team |
+| **Budget** | $200–500/month (Enterprise tier) |
+| **Decision cycle** | 2–4 weeks, single approver |
+
+### ICP Anti-patterns (who NOT to target)
+- ❌ Fortune 500 enterprise procurement (too slow, too compliance-heavy for MVP)
+- ❌ Developers / engineers (wrong persona, wrong pain)
+- ❌ Students (won't pay, poor feedback quality)
+
+---
+
+## 15. PRICING VALIDATION LOGIC
+
+### Pricing Hypothesis
+
+| Tier | Price | Rationale |
+|---|---|---|
+| **Free** | $0 / 3 docs per month | Prove value before asking for payment; seeding virality |
+| **Pro** | $29/month or $249/year | Below $30 = no-approval impulse buy for professionals |
+| **Enterprise** | $199/month per 5 seats | Anchored to 1 day of BA consulting cost ($800–1,200/day) |
+
+### Validation Steps (Pre-Launch)
+1. **Willingness to Pay Survey:** Ask 20 beta users "What would you pay for this?" (open-ended)
+2. **Van Westendorp price sensitivity test** with 50 respondents
+3. **Stripe payment page A/B test:** $19 vs $29 vs $39 at launch (first 500 users)
+4. **Conversion funnel tracking:** Free → Pro conversion rate target: 5% (industry avg SaaS: 2–5%)
+
+### Upgrade Triggers (in-product)
+- Hit 3 doc limit → upgrade modal with ROI message ("Pro pays for itself in 1 hour of saved work")
+- Gap Analysis locked feature preview (visible but blurred on free)
+- Export quality: free gets basic PDF, Pro gets branded professional template
+- History limit: free shows last 3 docs only
+
+---
+
+## 16. KEY PERFORMANCE INDICATORS
+
+| KPI | Target (Month 1) | Target (Month 3) | Target (Month 6) |
+|---|---|---|---|
+| Avg. generation time | < 30s | < 20s | < 15s |
+| Export rate | > 40% | > 55% | > 60% |
+| Free → Pro conversion | 2% | 4% | 6% |
+| D30 retention | 20% | 35% | 45% |
+| Gap detection precision | 60% | 75% | 85% |
+| AI generation accuracy (user rating) | 3.5/5 | 4.0/5 | 4.3/5 |
+| CAC (paid channels) | — | < $80 | < $50 |
+| MRR | $0 | $2,000 | $10,000 |
+
+---
+
+## APPENDIX: TECH STACK SUMMARY
+
+| Layer | Technology | Rationale |
+|---|---|---|
+| Frontend | React + Vite + TypeScript + TailwindCSS | Fast, type-safe, broad talent pool |
+| Backend | FastAPI (Python) | Async support, AI library ecosystem, Pydantic validation |
+| AI | OpenAI GPT-4o | Best structured output, function calling, JSON mode |
+| Queue | BullMQ + Redis | Reliable async job management |
+| Database | PostgreSQL (Supabase) | Relational for complex queries; Supabase = instant auth + REST |
+| Storage | Cloudflare R2 | S3-compatible, 0 egress fees |
+| Export | Puppeteer (PDF) + docxtemplater (DOCX) | Battle-tested, template-driven |
+| Auth | Clerk.dev | Social login, session management, webhooks out-of-box |
+| Payments | Stripe | Industry standard, subscription management |
+| Monitoring | Sentry + LogSnag | Error tracking + product events |
+| Deployment | Vercel + Railway | Zero DevOps overhead for MVP phase |
+
+---
+
+*Document prepared by: Antigravity AI Architecture Team*
+*Classification: Internal — Product Build Ready*
+*Next step: UX wireframes → technical spike → Week 1 kickoff*

@@ -1,0 +1,41 @@
+# ============================================================
+# RequirementIQ — Python Dependencies
+# Stack: Streamlit + MySQL + OpenAI
+# ============================================================
+
+# --- Core UI ---
+streamlit==1.32.0
+streamlit-option-menu==0.3.12
+
+# --- AI / OpenAI ---
+openai==1.14.0
+# tiktoken: install via: pip install tiktoken (needs Rust/C compiler on Windows)
+# Fallback token counting is built-in to utils/text_chunker.py
+
+# --- Database ---
+PyMySQL==1.1.0
+SQLAlchemy==2.0.28
+cryptography==42.0.5
+
+# --- File Parsing ---
+python-docx==1.1.0
+mammoth==1.7.1
+
+# --- Export ---
+reportlab==4.1.0
+
+# --- Auth & Security ---
+passlib[bcrypt]==1.7.4
+bcrypt==4.1.2
+
+# --- Utilities ---
+python-dotenv==1.0.1
+pydantic==2.6.3
+pydantic-settings==2.2.1
+
+# --- Data Handling ---
+# pandas: install separately if you have Visual Studio Build Tools
+# pip install pandas
+
+# --- Dev / Testing ---
+pytest==8.1.0
