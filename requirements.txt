@@ -9,6 +9,8 @@ streamlit-option-menu==0.3.12
 
 # --- AI / OpenAI ---
 openai==1.14.0
+# tiktoken: install via: pip install tiktoken (needs Rust/C compiler on Windows)
+# Fallback token counting is built-in to utils/text_chunker.py
 
 # --- Database ---
 PyMySQL==1.1.0
@@ -28,11 +30,12 @@ bcrypt==4.1.2
 
 # --- Utilities ---
 python-dotenv==1.0.1
-pydantic==2.5.3
-pydantic-settings==2.1.0
+pydantic==2.6.3
+pydantic-settings==2.2.1
 
 # --- Data Handling ---
-pandas==2.2.1
+# pandas: install separately if you have Visual Studio Build Tools
+# pip install pandas
 
 # --- Dev / Testing ---
 pytest==8.1.0
