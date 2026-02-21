@@ -24,6 +24,9 @@ mammoth==1.7.1
 # --- Export ---
 reportlab==4.1.0
 
+# --- Audio / Speech ---
+SpeechRecognition==3.10.1
+
 # --- Auth & Security ---
 passlib[bcrypt]==1.7.4
 bcrypt==4.1.2
