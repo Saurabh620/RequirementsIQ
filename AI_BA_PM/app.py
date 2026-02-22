@@ -120,7 +120,7 @@ if st.session_state.user:
             st.toast("👋 You've been logged out", icon="🔒")
             st.rerun()
         
-        st.caption(f"Token expires in ~24 hours. Auto-renewed on login.", font="small")
+        st.caption("Token expires in ~24 hours. Auto-renewed on login.")
 
     # ── Dashboard Main Area ──
     st.markdown("""
