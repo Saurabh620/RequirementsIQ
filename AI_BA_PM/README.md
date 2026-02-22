@@ -169,4 +169,3 @@ Assemble → Score → Save to MySQL → PDF/DOCX Export
 
 ---
 
-*Built with Antigravity AI · RequirementIQ v0.1.0 MVP*
