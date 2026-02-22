@@ -206,7 +206,7 @@ else:
                             
                             st.session_state.user = user
                             st.session_state.auth_success = msg
-                            st.toast("✅ " + msg, icon="✓")
+                            st.toast("✅ " + msg)
                             st.rerun()
                         else:
                             st.error(f"❌ {msg}")
