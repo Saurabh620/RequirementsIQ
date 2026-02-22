@@ -10,6 +10,7 @@ from services.document_service import save_document, save_pipeline_result, get_d
 from ai.orchestrator import run_pipeline
 from utils.domain_classifier import classify_domain
 from utils.voice_transcriber import transcribe_audio, SUPPORTED_LANGUAGES
+from utils.professional_button import professional_button
 
 st.set_page_config(page_title="Generate — RequirementIQ", page_icon="⚡", layout="wide")
 
@@ -137,16 +138,30 @@ with voice_tab:
                     del st.session_state["voice_recorder"]
                 st.rerun()
 
-        if st.button("🔄 Transcribe Now", type="primary", use_container_width=False):
-            with st.spinner("🎤 Transcribing with Google Speech API..."):
-                transcribed, status = transcribe_audio(audio_value.getvalue(), language=selected_lang)
+        def transcribe_voice_recording():
+            """Transcribe the voice recording using Google Speech API."""
+            transcribed, status = transcribe_audio(audio_value.getvalue(), language=selected_lang)
+            
             if status == "success" and transcribed:
                 st.session_state.voice_transcribed_text = transcribed
-                st.success(f"✅ Done! {len(transcribed):,} characters transcribed")
+                return transcribed
             elif status == "no_speech":
-                st.warning("⚠️ No speech detected — please speak clearly closer to your mic and try again.")
+                raise ValueError("⚠️ No speech detected — please speak clearly closer to your mic and try again.")
             else:
-                st.error(f"❌ {status}")
+                raise RuntimeError(f"❌ {status}")
+        
+        if professional_button(
+            button_id="transcribe_voice_btn",
+            label="🔄 Transcribe Now",
+            on_click=transcribe_voice_recording,
+            button_type="primary",
+            use_container_width=True,
+            show_progress_bar=False,
+            success_message="✅ Transcription complete!",
+        ):
+            transcribed = transcribe_voice_recording()
+            if transcribed:
+                st.success(f"📝 {len(transcribed):,} characters ready for generation")
 
     if st.session_state.voice_transcribed_text:
         st.markdown("**📝 Review & Edit Transcription** *(correct any errors before generating)*")
@@ -217,18 +232,19 @@ with grid_right:
         if not raw_text:
             st.info("💡 Provide input in Step 1 to begin.")
 
-        if st.button("⚡ Generate Documents", type="primary", use_container_width=True, disabled=not raw_text or not output_types):
+        # ── Professional button with SaaS behavior ──────────────────
+        def execute_generate():
+            """Execute the document generation pipeline."""
+            # Validate inputs
             if not raw_text:
-                st.error("Please provide input text first.")
-                st.stop()
+                raise ValueError("Please provide input text first.")
             if not output_types:
-                st.error("Please select at least one document type.")
-                st.stop()
+                raise ValueError("Please select at least one document type.")
 
+            # Check permissions
             can_gen, msg = can_generate(user)
             if not can_gen:
-                st.error(f"🚫 {msg}")
-                st.stop()
+                raise PermissionError(msg)
 
             # Save document record
             doc_id = save_document(
@@ -236,44 +252,46 @@ with grid_right:
                 domain=resolved_domain, output_types=output_types, title=doc_title or None
             )
 
-            # Progress UI
-            progress_bar = st.progress(0.0)
-            status_text  = st.empty()
-            gen_start    = time.time()
-
-            def progress_cb(stage: str, pct: float):
-                progress_bar.progress(pct)
-                status_text.markdown(f"🔄 **{stage}**")
-
-            with st.spinner(""):
-                result = run_pipeline(
-                    raw_text=raw_text,
-                    domain=resolved_domain,
-                    output_types=output_types,
-                    progress_callback=progress_cb,
-                    user_email=user.get("email", "system"),
-                    user_name=user.get("full_name", "User")
-                )
+            # Run pipeline
+            gen_start = time.time()
+            result = run_pipeline(
+                raw_text=raw_text,
+                domain=resolved_domain,
+                output_types=output_types,
+                user_email=user.get("email", "system"),
+                user_name=user.get("full_name", "User")
+            )
 
             # Save results
             save_pipeline_result(doc_id, user["id"], result, gen_start)
             increment_doc_count(user["id"])
+            gen_time = round(time.time() - gen_start, 1)
 
             # Update quota in session
             st.session_state.user["docs_used"] += 1
 
-            progress_bar.progress(1.0)
-            gen_time = round(time.time() - gen_start, 1)
-
-            if result.errors:
-                st.warning(f"⚠️ Generated with {len(result.errors)} warning(s): {'; '.join(result.errors[:2])}")
-            else:
-                st.success(f"✅ Finished in **{gen_time}s** | Tokens: **{result.total_tokens:,}**")
-
-            # Store in session for document viewer
+            # Store for document viewer
             st.session_state["current_doc_id"] = doc_id
             st.session_state["current_doc"] = get_document(doc_id, user["id"])
 
+            # Show any warnings
+            if result.errors:
+                st.warning(f"⚠️ Generated with {len(result.errors)} warning(s): {'; '.join(result.errors[:2])}")
+
             st.balloons()
+            return doc_id
+
+        # Render professional button
+        if professional_button(
+            button_id="generate_documents_main",
+            label="⚡ Generate Documents",
+            on_click=execute_generate,
+            button_type="primary",
+            use_container_width=True,
+            show_progress_bar=True,
+            progress_threshold=2.0,
+            success_message="✅ Documents generated successfully!",
+        ):
+            # Task completed - show next action
             if st.button("📄 View Generated Document →", type="primary", use_container_width=True):
                 st.switch_page("pages/02_Document.py")
