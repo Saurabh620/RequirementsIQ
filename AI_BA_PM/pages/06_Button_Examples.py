@@ -85,11 +85,11 @@ with st.container(border=True):
             button_id="process_items_demo",
             label="🚀 Process Now",
             on_click=process_items,
-            process_name,
-            count=count,
             button_type="primary",
             use_container_width=True,
             success_message=f"✅ Processed {count} items!",
+            name=process_name,
+            count=count,
         ):
             st.success(f"Result: {process_items(process_name, count)}")
 

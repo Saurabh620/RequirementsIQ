@@ -14,14 +14,22 @@ from utils.professional_button import professional_button
 
 st.set_page_config(page_title="Generate — RequirementIQ", page_icon="⚡", layout="wide")
 
-# Auth gate
-if not st.session_state.get("user"):
+# Auth gate - ensure user is authenticated
+if "user" not in st.session_state or st.session_state.user is None:
     st.warning("Please log in to continue.")
     if st.button("Go to Login"):
         st.switch_page("app.py")
     st.stop()
 
 user = st.session_state.user
+
+# Safety check (should not reach here if auth gate works, but just in case)
+if user is None:
+    st.error("Authentication error. Please log in again.")
+    if st.button("Return to Login"):
+        st.session_state.user = None
+        st.switch_page("app.py")
+    st.stop()
 
 # ── CSS ───────────────────────────────────────────────────────
 from utils.ui_theme import inject_theme
@@ -253,7 +261,6 @@ with grid_right:
             )
 
             # Run pipeline
-            gen_start = time.time()
             result = run_pipeline(
                 raw_text=raw_text,
                 domain=resolved_domain,
@@ -263,13 +270,14 @@ with grid_right:
             )
 
             # Save results
-            save_pipeline_result(doc_id, user["id"], result, gen_start)
+            save_pipeline_result(doc_id, user["id"], result, gen_start=time.time())
             increment_doc_count(user["id"])
-            gen_time = round(time.time() - gen_start, 1)
 
-            # Update quota in session
-            st.session_state.user["docs_used"] += 1
-
+            # Update quota in session (now safe - running on main thread)
+            if st.session_state.user is not None and isinstance(st.session_state.user, dict):
+                if "docs_used" in st.session_state.user:
+                    st.session_state.user["docs_used"] += 1
+            
             # Store for document viewer
             st.session_state["current_doc_id"] = doc_id
             st.session_state["current_doc"] = get_document(doc_id, user["id"])
@@ -288,8 +296,7 @@ with grid_right:
             on_click=execute_generate,
             button_type="primary",
             use_container_width=True,
-            show_progress_bar=True,
-            progress_threshold=2.0,
+            show_progress_bar=False,  # Disable threading to keep on main thread
             success_message="✅ Documents generated successfully!",
         ):
             # Task completed - show next action

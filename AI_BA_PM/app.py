@@ -1,11 +1,21 @@
 """
 RequirementIQ — Main Streamlit App
-Entry point: login / register gate → redirects to dashboard.
+Entry point: persistent login / register gate → redirects to dashboard.
 Run with: streamlit run app.py
+
+Authentication: JWT tokens stored in browser + database refresh tokens
+Auto-login on page load if valid token exists
 """
 import streamlit as st
 from database.connection import init_db, test_connection
 from services.auth_service import login_user, register_user
+from services.secure_auth_service import (
+    auto_login_from_cookie,
+    create_auth_cookie,
+    logout_user,
+    init_auth_tokens_table,
+)
+from services.cookie_manager import SimpleAuthCache
 
 # ── Page Config ───────────────────────────────────────────────
 st.set_page_config(
@@ -27,6 +37,8 @@ if "auth_error" not in st.session_state:
     st.session_state.auth_error = ""
 if "auth_success" not in st.session_state:
     st.session_state.auth_success = ""
+if "auth_token" not in st.session_state:
+    st.session_state.auth_token = None
 
 
 # ── DB Init (once per session) ────────────────────────────────
@@ -35,10 +47,43 @@ def startup():
     if not test_connection():
         return False
     init_db()
+    # Initialize auth tokens table for persistent login
+    init_auth_tokens_table()
     return True
 
 
 db_ok = startup()
+
+
+# ── Auto-Login on Page Load ───────────────────────────────────
+def auto_login_attempt():
+    """
+    Attempt to auto-login using cached auth token.
+    Called on every page load.
+    """
+    # Skip if already logged in this session
+    if st.session_state.user:
+        return
+    
+    # Check for cached auth token
+    cached_token = SimpleAuthCache.get_cached_auth_token()
+    if not cached_token:
+        return
+    
+    # Attempt auto-login
+    success, user, msg = auto_login_from_cookie(cached_token)
+    if success:
+        st.session_state.user = user
+        st.session_state.auth_token = cached_token
+        st.toast("✅ Welcome back!", icon="🔓")
+    else:
+        # Token invalid/expired, clear it
+        SimpleAuthCache.clear_auth_cache()
+        st.session_state.auth_token = None
+
+
+# Perform auto-login on startup
+auto_login_attempt()
 
 
 # ── If already logged in → show dashboard ─────────────────────
@@ -48,7 +93,7 @@ if st.session_state.user:
     # ── Logged-in Sidebar ──
     with st.sidebar:
         st.markdown(f"### 👋 Welcome, {user.get('full_name', '') or 'User'}")
-        st.caption(f"{user['email']}")
+        st.caption(f"📧 {user['email']}")
         st.divider()
         st.markdown("**🚀 Quick Navigation**")
         if st.button("⚡ New Document", use_container_width=True, type="primary"):
@@ -62,9 +107,20 @@ if st.session_state.user:
                 st.switch_page("pages/05_Admin.py")
         
         st.divider()
+        st.markdown("**Account**")
+        
+        # Logout button with secure token clearing
         if st.button("🚪 Log Out", type="secondary", use_container_width=True):
+            # Clear auth token from database
+            logout_user(user["id"])
+            # Clear from session
             st.session_state.user = None
+            st.session_state.auth_token = None
+            SimpleAuthCache.clear_auth_cache()
+            st.toast("👋 You've been logged out", icon="🔒")
             st.rerun()
+        
+        st.caption(f"Token expires in ~24 hours. Auto-renewed on login.", font="small")
 
     # ── Dashboard Main Area ──
     st.markdown("""
@@ -135,14 +191,22 @@ else:
                 st.markdown("<h4 style='color: white; margin-bottom: 1rem;'>Welcome Back</h4>", unsafe_allow_html=True)
                 email = st.text_input("Email", placeholder="you@example.com")
                 password = st.text_input("Password", type="password", placeholder="••••••••")
+                remember_me = st.checkbox("Keep me signed in (24 hours)", value=True)
                 submitted = st.form_submit_button("Sign In →", use_container_width=True, type="primary")
 
                 if submitted:
                     if email and password:
                         ok, user, msg = login_user(email, password)
                         if ok:
+                            # Create persistent auth token
+                            if remember_me:
+                                auth_token = create_auth_cookie(user["id"], user["email"])
+                                SimpleAuthCache.cache_auth_token(auth_token)
+                                st.session_state.auth_token = auth_token
+                            
                             st.session_state.user = user
                             st.session_state.auth_success = msg
+                            st.toast("✅ " + msg, icon="✓")
                             st.rerun()
                         else:
                             st.error(f"❌ {msg}")
@@ -171,4 +235,4 @@ else:
                             st.error(f"❌ {msg}")
 
     st.markdown("---")
-    st.caption("🔒 Free tier: 3 documents/month | Pro: Unlimited | Your data is never stored beyond processing")
+    st.caption("🔒 Persistent login: 24-hour session | Free tier: 3 documents/month | Pro: Unlimited | Your data is never stored beyond processing")
